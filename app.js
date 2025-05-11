@@ -9,11 +9,10 @@ export const startWs = (server) => {
     },
   });
 
-  
   io.on("connection", (socket) => {
     console.log(socket.id);
     // socket.emit("new-user", { message: `New user connected ${socket.id}` });
-
+    let wrongCount = 0;
     socket.on("join-room", (roomId) => {
       let scoreYou = 0;
       socket.join(roomId);
@@ -23,7 +22,6 @@ export const startWs = (server) => {
       });
 
       const clients = Array.from(io.sockets.adapter.rooms.get(roomId) || []);
-      let wrongCount = 0;
 
       console.log("Clients in the room: ", clients);
 
@@ -45,7 +43,7 @@ export const startWs = (server) => {
         const { randomColorName, shuffledObj } = selectColors();
         // console.log(randomColorName)
         io.to(roomId).emit("game-data", { randomColorName, shuffledObj });
-        wrongCount = 0
+        wrongCount = 0;
       });
 
       socket.on("wrong-answer", () => {
@@ -65,10 +63,10 @@ export const startWs = (server) => {
         io.to(roomId).emit("update-score", { payload });
       });
 
-      socket.on('disconnect', () => {
-        socket.leave(roomId)
-        console.log('Clients in my room', clients)
-      })
+      socket.on("disconnect", () => {
+        socket.leave(roomId);
+        console.log("Clients in my room", clients);
+      });
     });
     socket.on("message", (msg) => {
       console.log(msg);
